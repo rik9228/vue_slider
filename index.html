@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>title</title>
+    <meta name="description" content="description" />
+    <meta name="keywords" content="" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=10,initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="container">
+        <!-- mainImage -->
+        <img class="mainImage" :src="mainImage.src" :alt="mainImage.alt" />
+        <!-- currentIndex -->
+        <ul class="locations">
+          <li
+            class="location"
+            v-for="location in locations"
+            :key="location.id"
+            :data-num="location.id"
+            :class="{'currentLocation' : currentIndex == location.id}"
+            @click="locationChange"
+          ></li>
+        </ul>
+        <!-- thumbnails -->
+        <ul class="thumbnails">
+          <li class="thumbnail" :class="{'currentImage' : currentIndex == thumbnail.id}" v-for="thumbnail in thumbnails" :key="thumbnail.id">
+            <img :src="thumbnail.src" :alt="thumbnail.alt" @click="changeMainImage" :data-num="thumbnail.id" />
+          </li>
+        </ul>
+        <!-- prevNext -->
+        <div class="prevNext">
+          <button class="prev" @click="prevImage">< 前の画像へ</button>
+          <button class="next" @click="nextImage">次の画像へ ></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script>
+      const app = new Vue({
+        el: "#app",
+        data: {
+          mainImage: {
+            src: "./img/sample_01.JPG",
+            alt: "sample_01.JPG",
+          },
+          thumbnails: [
+            {
+              src: "./img/sample_01.JPG",
+              alt: "sample_03",
+              id: 0,
+            },
+            {
+              src: "./img/sample_02.JPG",
+              alt: "sample_03",
+              id: 1,
+            },
+            {
+              src: "./img/sample_03.JPG",
+              alt: "sample_03",
+              id: 2,
+            },
+            {
+              src: "./img/sample_04.JPG",
+              alt: "sample_04",
+              id: 3,
+            },
+          ],
+          locations: [
+            {
+              id: 0,
+            },
+            {
+              id: 1,
+            },
+            {
+              id: 2,
+            },
+            {
+              id: 3,
+            },
+          ],
+          currentIndex: 0,
+          currentImage: false,
+        },
+        computed: {},
+        created() {
+          this.timer();
+        },
+        methods: {
+          prevImage: function () {
+            if (this.currentIndex == 0) {
+              this.currentIndex = this.thumbnails.length;
+            }
+            this.currentIndex--;
+            this.changeImageFunc();
+          },
+          nextImage: function () {
+            if (this.currentIndex == this.thumbnails.length - 1) {
+              this.currentIndex = 0;
+              this.changeImageFunc();
+              return;
+            }
+            this.currentIndex++;
+            this.changeImageFunc();
+          },
+          changeMainImage: function (e) {
+            const targetSrc = e.currentTarget.getAttribute("src");
+            const targetNum = e.currentTarget.getAttribute("data-num");
+            // 押された対象要素のdata属性値を取得してcurrentIndexに突っ込む
+            this.currentIndex = targetNum;
+            this.mainImage.src = targetSrc;
+          },
+          // 画像を変える関数
+          changeImageFunc: function () {
+            this.thumbnails.forEach((thumbnail) => {
+              if (thumbnail.id == this.currentIndex) {
+                this.mainImage.src = thumbnail.src;
+              }
+            });
+          },
+          locationChange: function (e) {
+            const targetLocation = e.currentTarget.getAttribute("data-num");
+            this.currentIndex = targetLocation;
+            this.changeImageFunc();
+          },
+          timer: function () {
+            setTimeout(() => {
+              if (this.currentIndex == this.thumbnails.length - 1) {
+                this.currentIndex = -1;
+                this.changeImageFunc();
+              }
+              this.currentIndex++;
+              this.changeImageFunc();
+              this.timer();
+            }, 3000);
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
